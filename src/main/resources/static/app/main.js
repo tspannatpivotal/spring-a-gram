@@ -81,7 +81,7 @@ define(function(require) {
 		));
 
 		row.append($('<td></td>').append(
-			$('<button>Remove</button>')
+			$('<button class="remove">Remove</button>')
 				.attr('data-gallery-uri', gallery._links.self.href)
 				.attr('data-uri', item._links.self.href)
 		));
@@ -91,7 +91,7 @@ define(function(require) {
 	/* Draw the gallery table from scratch */
 	function drawGalleryTable(data) {
 		var table = $('<table></table>');
-		table.append('<tr><th></th><th>Name</th><th>Collection</th></tr>')
+		table.append('<tr><th></th><th>Name</th><th>Collection</th></tr>');
 		data.forEach(function (gallery) {
 			var row = $('<tr></tr>').attr('data-uri', gallery._links.self.href);
 
@@ -110,10 +110,10 @@ define(function(require) {
 			$('#gallery').append(table);
 
 			/* Now that the table is configured, start adding items to the nested table */
-			var items = api({
+			var galleryItems = api({
 				method: 'GET',
 				path: gallery._links.items.href,
-				params: {projection: "noImages"}
+				params: { projection: "noImages" }
 			}).then(function (response) {
 				if (response.entity._embedded) {
 					return response.entity._embedded.items.map(function (itemWithoutImage) {
@@ -124,10 +124,10 @@ define(function(require) {
 				}
 			});
 
-			return when.map(items, function(itemWithImage) {
+			when.map(galleryItems, function(itemWithImage) {
 				items[itemWithImage.entity._links.self.href] = itemWithImage.entity;
 				nestedTable.append(createItemRowForGallery(itemWithImage.entity, gallery));
-			});
+			}).done();
 		});
 	}
 
@@ -146,11 +146,11 @@ define(function(require) {
 		));
 
 		row.append($('<td></td>').append(
-			$('<button>Delete</button>')
+			$('<button class="delete">Delete</button>')
 		));
 
 		row.append($('<td></td>').append(
-			$('<button>Add To Gallery</button>')
+			$('<button class="add-to-gallery">Add To Gallery</button>')
 		));
 
 		return row;
@@ -163,6 +163,8 @@ define(function(require) {
 
 	/* When the page is loaded, run/register this set of code */
 	$(function() {
+		var imagesEl = $('#images');
+
 		/* When upload is clicked, upload the file, store it, and then add to list of unlinked items */
 		$('#upload').submit(function (e) {
 			e.preventDefault();
@@ -193,32 +195,28 @@ define(function(require) {
 		});
 
 		/* Listen for clicks on the gallery */
-		$('#gallery').on('click', function(e) {
-			if (e.target.localName === 'button' && e.target.innerText === 'Remove') {
-				var itemUri = e.target.dataset['uri'];
-				var galleryUri = e.target.dataset['galleryUri'];
-				removePicByResource(items[itemUri], galleries[galleryUri]);
-			}
+		$('#gallery').on('click', '.remove', function(e) {
+			var itemUri = e.target.dataset['uri'];
+			var galleryUri = e.target.dataset['galleryUri'];
+			removePicByResource(items[itemUri], galleries[galleryUri]);
 		});
 
 		/* Listen for clicks on the list of images */
-		$('#images').on('click', function(e) {
-			if (e.target.localName === 'button') {
-				if (e.target.innerText === 'Delete') {
-					var itemUri = e.target.parentNode.parentNode.dataset['uri'];
-					deletePic(items[itemUri]);
-				} else if (e.target.innerText === 'Add To Gallery') {
-					var itemUri = e.target.parentNode.parentNode.dataset['uri'];
-					addToSelectedGallery(items[itemUri]);
-				}
-			}
+		imagesEl.on('click', '.delete', function(e) {
+			var itemUri = e.target.parentNode.parentNode.dataset['uri'];
+			deletePic(items[itemUri]);
+		});
+
+		imagesEl.on('click', '.add-to-gallery', function(e) {
+			var itemUri = e.target.parentNode.parentNode.dataset['uri'];
+			addToSelectedGallery(items[itemUri]);
 		});
 
 		follow(api, root, ['galleries', 'galleries']).done(function(response) {
 			response.forEach(function(gallery) {
 				galleries[gallery._links.self.href] = gallery;
 			});
-			drawGalleryTable(response).done();
+			drawGalleryTable(response);
 			twitter.tweetPic();
 		});
 
@@ -230,7 +228,7 @@ define(function(require) {
 
 			var table = $('<table></table>');
 			table.append('<tr><th>Filename</th><th>Image</th><th>Share</th><th></th><th></th></tr>');
-			$('#images').append(table);
+			imagesEl.append(table);
 			response.forEach(function(itemWithoutImage) {
 				api({path: itemWithoutImage._links.self.href}).done(function(item) {
 					items[item.entity._links.self.href] = item.entity;
