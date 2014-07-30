@@ -1,6 +1,6 @@
 {
   "name": "when",
-  "version": "3.2.3",
+  "version": "3.4.2",
   "main": "when.js",
   "moduleType": [
     "amd",
@@ -34,11 +34,11 @@
     "test",
     "build"
   ],
-  "_release": "3.2.3",
+  "_release": "3.4.2",
   "_resolution": {
     "type": "version",
-    "tag": "3.2.3",
-    "commit": "4ce29bd3efcabf8477f8e400cd6663453838c6fe"
+    "tag": "3.4.2",
+    "commit": "7cff4ac7d9642da1b8e458c952c2525077f61deb"
   },
   "_source": "git://github.com/cujojs/when.git",
   "_target": "~3",

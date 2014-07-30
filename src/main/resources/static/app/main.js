@@ -11,6 +11,8 @@
         var registry = require('rest/mime/registry');
         var interceptor = require('rest/interceptor');
 
+		var follow = require('./follow');
+
         var uriTemplateInterceptor = interceptor({
             request: function (request, config, meta) {
                 /* If the URI is a URI Template per RFC 6570 (http://tools.ietf.org/html/rfc6570), trim out the template part */
@@ -220,42 +222,6 @@
             $('#images table').append(createItemRow(item));
         }
 
-        function follow(root, relArray) {
-            var root = api({
-                method: 'GET',
-                path: root
-            });
-            relArray.forEach(function(arrayItem) {
-                var rel;
-                if (typeof arrayItem === 'string') {
-                    var rel = arrayItem
-                } else {
-                    var rel = arrayItem.rel;
-
-                }
-
-                root = root.then(function (response) {
-                    if (response.entity._embedded && response.entity._embedded.hasOwnProperty(rel)) {
-                        return response.entity._embedded[rel];
-                    } else {
-                        if (typeof arrayItem === 'string') {
-                            return api({
-                                method: 'GET',
-                                path: response.entity._links[rel].href
-                            });
-                        } else {
-                            return api({
-                                method: 'GET',
-                                path: response.entity._links[rel].href,
-                                params: arrayItem.params
-                            });
-                        }
-                    }
-                });
-            });
-            return root;
-        }
-
         function tweetButton(item) {
             return $('<a>Tweet me!</a>')
                 .attr('href', 'https://twitter.com/share')
@@ -333,7 +299,7 @@
                 }
             });
 
-            follow(root, ['galleries', 'galleries']).done(function(response) {
+            follow(api, root, ['galleries', 'galleries']).done(function(response) {
                 response.forEach(function(gallery) {
                     galleries[gallery._links.self.href] = gallery;
                 });
@@ -341,7 +307,7 @@
                 tweetPic();
             })
 
-            follow(root, [
+            follow(api, root, [
                 { rel: 'items', params: { projection: "noImages"} },
                 'search',
                 { rel: 'findByGalleryIsNull', params: { projection: "noImages" } },
