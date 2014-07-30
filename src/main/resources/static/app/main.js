@@ -13,6 +13,8 @@ define(function(require) {
 	var galleries = {};
 	var root = '/api';
 
+	var emptyImageTable = '<table><tr><th>Filename</th><th>Image</th><th>Share</th><th></th><th></th></tr></table>';
+
 	/* Search for a given item in the table of unlinked images */
 	function findUnlinkedItem(item) {
 		return $('#images tr[data-uri="' + item._links.self.href + '"]');
@@ -223,31 +225,34 @@ define(function(require) {
 			addToSelectedGallery(items[itemUri]);
 		});
 
-		follow(api, root, ['galleries', 'galleries']).done(function(response) {
-			response.forEach(function(gallery) {
-				galleries[gallery._links.self.href] = gallery;
+		var galleriesReady = follow(api, root, ['galleries', 'galleries'])
+			.then(function(response) {
+				response.forEach(function(gallery) {
+					galleries[gallery._links.self.href] = gallery;
+				});
+
+				return drawGalleryTable(response);
 			});
 
-			drawGalleryTable(response).done();
-			twitter.tweetPic();
-		});
-
-		follow(api, root, [
+		var itemsReady = follow(api, root, [
 			{ rel: 'items', params: { projection: "noImages"} },
 			'search',
 			{ rel: 'findByGalleryIsNull', params: { projection: "noImages" } },
-			'items']).done(function(response) {
+			'items'])
+			.then(function(response) {
 
-			var table = $('<table></table>');
-			table.append('<tr><th>Filename</th><th>Image</th><th>Share</th><th></th><th></th></tr>');
-			imagesEl.append(table);
-			response.forEach(function(itemWithoutImage) {
-				api({path: itemWithoutImage._links.self.href}).done(function(item) {
-					items[item.entity._links.self.href] = item.entity;
-					addItemRow(item.entity);
+				imagesEl.append(emptyImageTable);
+
+				return when.map(response, function(itemWithoutImage) {
+					return api({
+						path: itemWithoutImage._links.self.href
+					}).then(function(item) {
+						items[item.entity._links.self.href] = item.entity;
+						addItemRow(item.entity);
+					});
 				});
-				twitter.tweetPic();
 			});
-		});
+
+		when.join(galleriesReady, itemsReady).done(twitter.tweetPic);
 	});
 });

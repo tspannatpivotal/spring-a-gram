@@ -8,8 +8,8 @@ define(function(require) {
 	var hal = require('rest/mime/type/application/hal');
 	var baseRegistry = require('rest/mime/registry');
 
-	var uriTemplateInterceptor = require('./rest/uriTemplateInterceptor');
-	var uriListConverter = require('./rest/uriListConverter');
+	var uriTemplateInterceptor = require('./api/uriTemplateInterceptor');
+	var uriListConverter = require('./api/uriListConverter');
 
 	var registry = baseRegistry.child();
 

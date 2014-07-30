@@ -17,6 +17,10 @@ define(function() {
 					return response.entity._embedded[rel];
 				}
 
+				if(!response.entity._links) {
+					return [];
+				}
+
 				if (typeof arrayItem === 'string') {
 					return api({
 						method: 'GET',
@@ -35,6 +39,6 @@ define(function() {
 		function hasEmbeddedRel (entity, rel) {
 			return entity._embedded && entity._embedded.hasOwnProperty(rel);
 		}
-	}
+	};
 
 });
