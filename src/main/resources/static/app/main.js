@@ -92,7 +92,8 @@ define(function(require) {
 	function drawGalleryTable(data) {
 		var table = $('<table></table>');
 		table.append('<tr><th></th><th>Name</th><th>Collection</th></tr>');
-		data.forEach(function (gallery) {
+
+		return when.map(data, function (gallery) {
 			var row = $('<tr></tr>').attr('data-uri', gallery._links.self.href);
 
 			row.append($('<td></td>').append(
@@ -110,24 +111,34 @@ define(function(require) {
 			$('#gallery').append(table);
 
 			/* Now that the table is configured, start adding items to the nested table */
-			var galleryItems = api({
-				method: 'GET',
-				path: gallery._links.items.href,
-				params: { projection: "noImages" }
-			}).then(function (response) {
-				if (response.entity._embedded) {
-					return response.entity._embedded.items.map(function (itemWithoutImage) {
-						return api({path: itemWithoutImage._links.self.href})
-					});
-				} else {
-					return [];
-				}
-			});
-
-			when.map(galleryItems, function(itemWithImage) {
+			var galleryItems = getGalleryItems(gallery);
+			return when.map(galleryItems, function(itemWithImage) {
 				items[itemWithImage.entity._links.self.href] = itemWithImage.entity;
 				nestedTable.append(createItemRowForGallery(itemWithImage.entity, gallery));
-			}).done();
+			});
+		});
+	}
+
+	function getGalleryItems (gallery) {
+		return api({
+			method: 'GET',
+			path: gallery._links.items.href,
+			params: { projection: "noImages" }
+		}).then(function (response) {
+			return getEmbeddedItems(response.entity);
+		});
+	}
+
+	function getEmbeddedItems(galleryItems) {
+		var embedded = galleryItems._embedded;
+		if (!embedded) {
+			return [];
+		}
+
+		return embedded.items.map(function (itemWithoutImage) {
+			return api({
+				path: itemWithoutImage._links.self.href
+			});
 		});
 	}
 
@@ -216,7 +227,8 @@ define(function(require) {
 			response.forEach(function(gallery) {
 				galleries[gallery._links.self.href] = gallery;
 			});
-			drawGalleryTable(response);
+
+			drawGalleryTable(response).done();
 			twitter.tweetPic();
 		});
 
