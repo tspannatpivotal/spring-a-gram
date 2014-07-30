@@ -1,4 +1,3 @@
-(function(define) {
 define(function() {
 
 	return function follow(api, rootPath, relArray) {
@@ -39,4 +38,3 @@ define(function() {
 	}
 
 });
-}(define));
