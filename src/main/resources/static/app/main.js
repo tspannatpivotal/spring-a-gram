@@ -2,44 +2,14 @@ define(function(require) {
 	'use strict';
 
 	var fab = require('fabulous');
-	var $ = require('jquery');
 	var most = require('most');
 	var when = require('when');
+	var domready = require('domready');
+
 	var api = require('./api');
 	var follow = require('./follow');
 	var twitter = require('./twitter');
 	var imageReader = require('./imageReader');
-
-
-	var Lens = require('fabulous/lib/lens');
-	var base = require('fabulous/dom/base');
-
-	function attrLens(name) {
-		return new Lens(getter, setter);
-
-		function getter(node) {
-			var val = node[name];
-			return val === void 0 ? node.getAttribute(name) : val;
-		}
-
-		function setter(val, node) {
-			if(name in node) {
-				node[name] = val;
-			} else {
-				node.setAttribute(name, val);
-			}
-			return node;
-		}
-	}
-
-	function valueLens() {
-		return new Lens(base.getValue, valueSetter);
-	}
-
-	function valueSetter(value, node) {
-		base.setValue(node, value);
-		return node;
-	}
 
 	return fab.run(document.body, runApp);
 
@@ -58,7 +28,14 @@ define(function(require) {
 			context.currentGallery = gallery;
 		};
 
-		context.imageSrc = attrLens('src');
+		context.imageSrc = {
+			get: function(node) {
+				return node.src;
+			},
+			set: function(value, node) {
+				node.src = value;
+			}
+		};
 
 		var halrx = /\/(_links|htmlUrl|gallery)(\/|$)/;
 		context.ignoreHALMetadata = function(patch) {
@@ -157,7 +134,7 @@ define(function(require) {
 		};
 
 		/* When the page is loaded, run/register this set of code */
-		$(function() {
+		domready(function() {
 
 			var galleriesReady = follow(api, root, ['galleries', 'galleries'])
 				.then(function(galleries) {

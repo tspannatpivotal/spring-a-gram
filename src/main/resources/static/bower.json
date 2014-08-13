@@ -26,14 +26,13 @@
     "tests"
   ],
   "dependencies": {
-    "requirejs": "~2.1",
-    "require-css": "~0.1",
     "jquery": "~2.1.1",
     "jquery-mobile-bower": "~1.4.2",
     "rest": "1.1.1",
     "when": "3.4.3",
     "fabulous": "briancavalier/fabulous",
-    "rave": "~0.2.0"
+    "rave": "~0.2.0",
+    "domready": "~1.0.6"
   },
   "resolutions": {
     "jquery": "~2.1.1"
