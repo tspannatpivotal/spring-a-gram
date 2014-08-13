@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" data-debug="">
 <head>
     <title>Spring-A-Gram :: Upload your fav pics</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <script data-main="run.js" src="requirejs/require.js"></script>
+    <script src="bower_components/rave/rave.js"></script>
     <style>
         .thumbnail {
             width: 100px;
@@ -19,14 +19,51 @@
 <body>
     <h2><a href="/">Spring-A-Gram: Upload your favorite pictures!</a></h2>
 
-    <form action="#" id="upload">
-        <p>File to upload: <input type="file" id="file" /></p>
+    <form onsubmit="uploadImage">
+        <p>File to upload: <input name="image" type="file" /></p>
         <p><input type="submit" value="Upload" /></p>
     </form>
 
-    <div id="gallery"></div>
+    <div data-model="galleries|ignoreHALMetadata">
 
-    <div id="images"></div>
+        <ul>
+            <li data-list="">
+                <label><input type="radio" onchange="setCurrentGallery" />{{description}}</label>
+                <table>
+                    <thead>
+                    <tr><th>Filename</th><th>Image</th><th>Share</th></tr>
+                    </thead>
+
+                    <tbody data-path="images">
+                    <tr data-list="">
+                        <td>{{name}}</td>
+                        <td><img src="" class="thumbnail" data-path="image|imageSrc"/></td>
+                        <td>tweet</td>
+                        <td><button onclick="removeFromGallery">Remove</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </li>
+        </ul>
+
+    </div>
+
+    <div id="images">
+        <table data-model="images|ignoreHALMetadata">
+            <thead>
+                <tr><th>Filename</th><th>Image</th><th>Share</th></tr>
+            </thead>
+            <tbody>
+                <tr data-list="">
+                    <td>{{name}}</td>
+                    <td><img src="" class="thumbnail" data-path="image|imageSrc"/></td>
+                    <td>tweet</td>
+                    <td><button onclick="deletePic">Delete</button></td>
+                    <td><button onclick="addToSelectedGallery">Add to gallery</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <h3>See this app presented during SpringOne 2GX 2014 at
         <a href="https://2014.event.springone2gx.com/schedule/sczbpf" target="_blank">
