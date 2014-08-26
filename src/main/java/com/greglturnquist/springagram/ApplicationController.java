@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * This is the web controller that contains web pages and other custom end points.
@@ -29,7 +30,7 @@ public class ApplicationController {
 	 * Serve up the home page
 	 * @return
 	 */
-	@RequestMapping("/")
+	@RequestMapping(value="/", method=RequestMethod.GET)
 	public String index() {
 		return "index";
 	}
@@ -39,7 +40,7 @@ public class ApplicationController {
 	 * @param id
 	 * @return
 	 */
-	@RequestMapping("/image/{id}")
+	@RequestMapping(value="/image/{id}", method=RequestMethod.GET)
 	public String image(@PathVariable Long id, Model model, HttpServletRequest request) {
 		model.addAttribute("item", itemRepository.findOne(id));
 		model.addAttribute("hashtag", hashtag);

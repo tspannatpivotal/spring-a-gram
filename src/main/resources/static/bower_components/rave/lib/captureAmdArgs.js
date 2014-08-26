@@ -37,9 +37,13 @@ function captureAmdArgs (source) {
 	};
 
 	// indicate we are AMD and we can handle the jqueries
-	capture.amd = { jquery: {} };
+	capture.amd = { jQuery: {} };
 
 	amdEval(capture, source);
+
+	if (!result) {
+		throw new Error('AMD define not called.');
+	}
 
 	return result;
 }

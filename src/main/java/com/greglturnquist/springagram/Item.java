@@ -2,6 +2,9 @@ package com.greglturnquist.springagram;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,13 +12,14 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
 
 import org.springframework.hateoas.Link;
 import org.springframework.ui.Model;
 
 @Entity
-public class Item {
+public class Item implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

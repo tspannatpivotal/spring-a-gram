@@ -332,6 +332,8 @@ var delay = timed.delay;
 var delayOn = timed.delayOn;
 var throttle = timed.throttle;
 var throttleOn = timed.throttleOn;
+var debounce = timed.debounce;
+var debounceOn = timed.debounceOn;
 
 exports.periodic   = timed.periodic;
 exports.periodicOn = timed.periodicOn;
@@ -339,6 +341,8 @@ exports.delay      = delay;
 exports.delayOn    = delayOn;
 exports.throttle   = throttle;
 exports.throttleOn = throttleOn;
+exports.debounce   = debounce;
+exports.debounceOn = debounceOn;
 
 /**
  * @param {Number} delayTime milliseconds to delay each item
@@ -351,7 +355,9 @@ Stream.prototype.delay = function(delayTime, scheduler) {
 };
 
 /**
- * Skip events for period time after the most recent event
+ * Limit the rate of events
+ * stream:              abcd----abcd----
+ * throttle(2, stream): a-c-----a-c-----
  * @param {Number} period time to suppress events
  * @param {Scheduler=} scheduler optional scheduler
  * @returns {Stream} new stream that skips events for throttle period
@@ -359,4 +365,18 @@ Stream.prototype.delay = function(delayTime, scheduler) {
 Stream.prototype.throttle = function(period, scheduler) {
 	return arguments.length > 1 ? throttleOn(scheduler, period, this)
 		: throttle(period, this);
+};
+
+/**
+ * Wait for a burst of events to subside and emit only the last event in the burst
+ * stream:              abcd----abcd----
+ * debounce(2, stream): -----d-------d--
+ * @param {Number} period events occuring more frequently than this
+ *  on the provided scheduler will be suppressed
+ * @param {Scheduler=} scheduler optional scheduler
+ * @returns {Stream} new debounced stream
+ */
+Stream.prototype.debounce = function(period, scheduler) {
+	return arguments.length > 1 ? debounceOn(scheduler, period, this)
+		: debounce(period, this);
 };
