@@ -11,16 +11,30 @@ define(function(require) {
 	var twitter = require('./twitter');
 	var imageReader = require('./imageReader');
 
+	var rest = require('fabulous/rest');
+	var Document = require('fabulous/Document');
+
 	return fab.run(document.body, runApp);
 
 	function runApp(node, context) {
-
+		var getClient = rest.at('/api/items');
+		var patchClient = rest.at('/sync/items');
+		
 		var root = '/api';
 
 		context.images = [];
 		context.galleries = [];
 		context.deletePic = deletePic;
+		
+		Document.sync([
+   			Document.fromPatchRemote(function(patch) {
+   				return patchClient.patch({ entity: patch });
+   			}, getClient.get()),
+   			Document.fromSource(context.images)
+   		]);
 
+		
+		
 		context.currentGallery = void 0;
 		context.addToSelectedGallery = addToSelectedGallery;
 		context.removeFromGallery = removePicByResource;
@@ -120,16 +134,7 @@ define(function(require) {
 		context.uploadImage = function(data) {
 			var images = context.images;
 			imageReader.readImage(data.image).then(function(imageData) {
-				return api({
-					method: 'POST',
-					path: root + '/items',
-					entity: imageData,
-					headers: {'Content-Type': 'application/json'}
-				});
-			}).then(function(response) {
-				return api(response.headers.Location);
-			}).done(function(response) {
-				images.push(response.entity);
+				images.push(imageData);
 			});
 		};
 
