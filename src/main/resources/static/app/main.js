@@ -195,11 +195,17 @@ define(function(require) {
 
 	/* When the page is loaded, run/register this set of code */
 	$(function() {
+		var spinner = $('#spinner');
+
+		//spinner.hide();
+
 		var imagesEl = $('#images');
 
 		/* When upload is clicked, upload the file, store it, and then add to list of unlinked items */
 		$('#upload').submit(function (e) {
 			e.preventDefault();
+
+			//spinner.show();
 
 			var fileInput = $('#file')[0];
 
@@ -223,6 +229,7 @@ define(function(require) {
 				var item = response.entity;
 				items[item._links.self.href] = item;
 				addItemRow(item);
+				//spinner.hide();
 			});
 		});
 

@@ -94,3 +94,5 @@ h1 {
     padding: $inuit-btn-padding--small - $inuit-btn-border-width  double($inuit-btn-padding--small) - $inuit-btn-border-width; /* [7] */
   }
 }
+
+@import "spinner";
